@@ -49,7 +49,7 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           // 模拟登录成功跳转
-          this.$router.push('/home');
+          this.$router.push('/home/front');
         }
       });
     }
