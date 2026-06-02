@@ -11,7 +11,7 @@
           text-color="#333"
           active-text-color="#409EFF">
           
-          <el-menu-item index="0" @click="$router.push('/home/front')">
+          <el-menu-item index="0" @click="$router.push('/home')">
             <template #title>
               <i class="el-icon-document"></i>
               <span>首页</span>
@@ -23,7 +23,7 @@
               <i class="el-icon-menu"></i>
               <span>功能菜单</span>
             </template>
-            <el-menu-item index="1-1" @click="$router.push('/user')">用户管理</el-menu-item>
+            <el-menu-item index="1-1" @click="$router.push('/home/user')">用户管理</el-menu-item>
             <el-menu-item index="1-2">文章管理</el-menu-item>
           </el-sub-menu>
           
@@ -73,7 +73,7 @@
         </el-header>
 
         <el-main class="main-content">
-          <router-view v-if="$route.path === '/user'"></router-view>
+          <router-view v-if="$route.path === '/home/user'"></router-view>
           
           <div v-else class="content-wrapper">
             <div class="profile-section">

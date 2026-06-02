@@ -11,11 +11,11 @@ const routes = [
   { path: '/register', name: 'Register', component: Register },
   { path: '/updatePwd', name: 'UpdatePwd', component: UpdatePwd },
   { 
-    path: '/home/front', 
+    path: '/home', 
     name: 'Home', 
     component: Home,
     children: [
-      { path: '/user', name: 'UserList', component: UserList }
+      { path: 'user', name: 'UserList', component: UserList }
     ]
   }
 ]
