@@ -16,7 +16,7 @@
         </div>
       </div>
 
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table v-loading="loading" :data="pagedData" stripe style="width: 100%">
         <el-table-column type="index" label="序号" width="60"></el-table-column>
         <el-table-column prop="date" label="日期" width="180"></el-table-column>
         <el-table-column prop="name" label="姓名" width="100"></el-table-column>
@@ -40,7 +40,7 @@
           :page-sizes="[10, 20, 30, 40]"
           background
           layout="total, sizes, prev, pager, next, jumper"
-          :total="100"
+          :total="total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -51,24 +51,59 @@
 </template>
 
 <script>
+import { getUserList } from '@/api/user'
+
 export default {
   name: 'UserList',
   data() {
     return {
+      loading: false,
       searchQuery: '',
       currentPage: 1,
       pageSize: 10,
-      // 静态模拟的用户数据
-      tableData: [
-        { date: '2024-04-12 00:00:00', name: '王小虎', province: '上海', city: '普陀区', address: '上海市普陀区金沙江路 1518 弄', zip: '200333' },
-        { date: '2024-04-12 00:00:00', name: '李小虎', province: '上海', city: '普陀区', address: '上海市普陀区金沙江路 1517 弄', zip: '200333' },
-        { date: '2024-04-12 00:00:00', name: '张小虎', province: '上海', city: '普陀区', address: '上海市普陀区金沙江路 1519 弄', zip: '200333' },
-        { date: '2024-04-12 00:00:00', name: '赵小虎', province: '上海', city: '普陀区', address: '上海市普陀区金沙江路 1516 弄', zip: '200333' },
-        { date: '2024-04-12 00:00:00', name: '孙小虎', province: '上海', city: '普陀区', address: '上海市普陀区金沙江路 1515 弄', zip: '200333' }
-      ]
+      total: 0,
+      tableData: []
     };
   },
+  computed: {
+    filteredData() {
+      if (!this.searchQuery) return this.tableData
+      const keyword = this.searchQuery.trim().toLowerCase()
+      return this.tableData.filter((row) =>
+        Object.values(row).some((val) =>
+          String(val).toLowerCase().includes(keyword)
+        )
+      )
+    },
+    pagedData() {
+      const start = (this.currentPage - 1) * this.pageSize
+      return this.filteredData.slice(start, start + this.pageSize)
+    }
+  },
+  watch: {
+    filteredData(list) {
+      this.total = list.length
+      if ((this.currentPage - 1) * this.pageSize >= list.length) {
+        this.currentPage = 1
+      }
+    }
+  },
+  mounted() {
+    this.fetchList()
+  },
   methods: {
+    async fetchList() {
+      this.loading = true
+      try {
+        const res = await getUserList()
+        this.tableData = res.data || []
+        this.total = this.tableData.length
+      } catch (e) {
+        this.$message.error(e.message || '加载列表失败')
+      } finally {
+        this.loading = false
+      }
+    },
     handleEdit(row) {
       this.$message.info(`正在编辑: ${row.name}`);
     },
@@ -76,10 +111,11 @@ export default {
       this.$message.warning(`已删除: ${row.name}`);
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.pageSize = val
+      this.currentPage = 1
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.currentPage = val
     }
   }
 };

@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import { login } from '@/api/auth'
+
 export default {
   data() {
     return {
@@ -46,12 +48,17 @@ export default {
   },
   methods: {
     submitLogin() {
-      this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          // 模拟登录成功跳转
-          this.$router.push('/home');
+      this.$refs.loginForm.validate(async (valid) => {
+        if (!valid) return
+        try {
+          const res = await login(this.loginForm)
+          localStorage.setItem('user', JSON.stringify(res.data))
+          this.$message.success('登录成功')
+          this.$router.push('/home')
+        } catch (e) {
+          this.$message.error(e.message)
         }
-      });
+      })
     }
   }
 };

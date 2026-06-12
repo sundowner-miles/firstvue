@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import { updatePassword } from '@/api/auth'
+
 export default {
   data() {
     // 自定义验证规则：校验两次密码是否一致
@@ -57,16 +59,23 @@ export default {
     };
   },
   methods: {
-    submitPwd() {
-      // 需要同时校验两部分表单
-      let isValidLeft = false;
-      let isValidRight = false;
-      this.$refs.pwdForm.validate(valid => { isValidLeft = valid; });
-      this.$refs.pwdFormRight.validate(valid => { isValidRight = valid; });
-      
-      if (isValidLeft && isValidRight) {
-        this.$message.success('修改成功！');
-        this.$router.push('/');
+    async submitPwd() {
+      try {
+        await Promise.all([
+          this.$refs.pwdForm.validate(),
+          this.$refs.pwdFormRight.validate()
+        ])
+        await updatePassword({
+          username: this.pwdForm.username,
+          oldPwd: this.pwdForm.oldPwd,
+          newPwd: this.pwdForm.newPwd
+        })
+        this.$message.success('修改成功！')
+        this.$router.push('/login')
+      } catch (e) {
+        if (e && e.message) {
+          this.$message.error(e.message)
+        }
       }
     }
   }

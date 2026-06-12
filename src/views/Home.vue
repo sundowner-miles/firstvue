@@ -62,9 +62,6 @@
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="张三">切换为 张三</el-dropdown-item>
-                  <el-dropdown-item command="李四">切换为 李四</el-dropdown-item>
-                  <el-dropdown-item command="王五">切换为 王五</el-dropdown-item>
                   <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -79,7 +76,7 @@
             <div class="profile-section">
               <h2 class="welcome-text">欢迎 {{ currentUserName }}</h2>
               <div class="avatar-card">
-                <img src="https://picsum.photos/300/300" alt="用户头像" class="avatar-img" />
+                <img :src="avatarUrl" alt="用户头像" class="avatar-img" />
               </div>
             </div>
             
@@ -98,23 +95,30 @@ export default {
   data() {
     return {
       calendarDate: new Date(),
-      currentTheme: 'yellow-theme', // 默认设为黄色风格
+      currentTheme: 'yellow-theme',
       currentUser: '登录用户',
-      currentUserName: '张三' // 控制主页显示的欢迎名字
+      currentUserName: '',
+      avatarUrl: 'https://picsum.photos/300/300'
     };
+  },
+  mounted() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    if (user.username) {
+      this.currentUser = user.username
+      this.currentUserName = user.username
+    }
+    if (user.avatar) {
+      this.avatarUrl = user.avatar
+    }
   },
   methods: {
     changeTheme(theme) {
       this.currentTheme = theme;
     },
-    // 处理下拉菜单点击事件
     handleCommand(command) {
       if (command === 'logout') {
+        localStorage.removeItem('user')
         this.$router.push('/login');
-      } else {
-        this.currentUser = command;
-        this.currentUserName = command;
-        this.$message.success(`已切换登录用户为：${command}`);
       }
     }
   }
